@@ -4,10 +4,10 @@ namespace ChatSignalR.Models
 {
     public class LoginModel
     {
-        [Required(ErrorMessage = "Не указан Email")]
+        [Required(ErrorMessage = "Укажите Email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Не указан пароль")]
+        [Required(ErrorMessage = "Укажите пароль")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
     }

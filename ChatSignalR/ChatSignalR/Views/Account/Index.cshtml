@@ -6,74 +6,84 @@ else
 {
     <a href="~/Account/Login">Войти</a>
 }
-
+<a href="~/Account/Signin">Зарегистрироваться</a>
 @if (User.IsInRole("banned"))
 {
     <div>
-        Вы забанены <br />
+        Вы забанены <br/>
     </div>
 }
 
 @if (!User.IsInRole("banned"))
 {
-    <div id="userNameBlock">
-        Введите ник:<br />
-        <input id="userName" type="text" />
-        <input id="loginBtn" type="button" value="Установить" />
-    </div>
-    <br />
 
     <div id="header"></div>
-    <br />
+    <br/>
 
 
     <div id="inputForm">
-        <input type="text" id="message" />
-        <input type="button" id="sendBtn" value="Отправить" />
+        <input type="text" id="message"/>
+        <input type="button" id="sendBtn" value="Отправить"/>
     </div>
 }
 
 @if (User.IsInRole("admin"))
 {
+    <br/><div id="notifyForm">
+             <input type="text" id="notify"/>
+             <input type="button" id="notifyBtn" value="Уведомление"/>
+         </div>
     <a href="~/Account/AllUsers">Все пользователи</a>
 }
 
 <div id="chatroom"></div>
 
-<script src="js/signalr/dist/browser/signalr.min.js"></script>
+
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+
 <script>
     const hubConnection = new signalR.HubConnectionBuilder()
         .withUrl("/chat")
         .build();
-
-    let userName = '';
+    
+    //получает текущего пользователя
+    @{ var c = User.Identity.IsAuthenticated ? User.Identity.Name.ToString() : "";}
+    let userName = "@c";
+    
     // получение сообщения от сервера
-    hubConnection.on('Send', function (message, userName) {
-
+    hubConnection.on("Receive", function (message, userName) {
+ 
         // создаем элемент <b> для имени пользователя
         let userNameElem = document.createElement("b");
-        userNameElem.appendChild(document.createTextNode(userName + ': '));
-
+        userNameElem.appendChild(document.createTextNode(userName + ": "));
+ 
         // создает элемент <p> для сообщения пользователя
         let elem = document.createElement("p");
         elem.appendChild(userNameElem);
         elem.appendChild(document.createTextNode(message));
-
+ 
         var firstElem = document.getElementById("chatroom").firstChild;
         document.getElementById("chatroom").insertBefore(elem, firstElem);
-
+ 
     });
 
-    // установка имени пользователя
-    document.getElementById("loginBtn").addEventListener("click", function (e) {
-        userName = document.getElementById("userName").value;
-        document.getElementById("header").innerHTML = '<h3>Welcome ' + userName + '</h3>';
-    });
-    // отправка сообщения на сервер
+    // отправка сообщения от простого пользователя
     document.getElementById("sendBtn").addEventListener("click", function (e) {
         let message = document.getElementById("message").value;
         hubConnection.invoke("Send", message, userName);
     });
-
+    // если администратор добавляем блок
+    @if (User.IsInRole("admin"))
+    {
+        // отправка сообщения от администратора
+        <text>
+        document.getElementById("notifyBtn").addEventListener("click", function(e) {
+            let message = document.getElementById("notify").value;
+            hubConnection.invoke("Notify", message, userName);
+        });
+        </text>
+    }
     hubConnection.start();
 </script>
+<br/><br/><br/><br/><br/><br/><br/><br/>

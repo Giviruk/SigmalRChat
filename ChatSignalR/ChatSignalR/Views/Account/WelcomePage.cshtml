@@ -1,0 +1,28 @@
+﻿<head>
+    <title>
+
+    </title>
+
+</head>
+<body>
+
+<div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p> Welcome @User.Identity.Name !</p>
+        <a href="~/Account/Logout">Выйти</a>
+        // кнопка перехода к ChatsPage
+    }
+    else
+    {
+        <p> Welcome user !</p>
+        <a href="~/Account/Signin">Зарегистрироваться</a>
+        <a href="~/Account/Login">Войти</a>
+    }
+    
+</div>
+<div>
+    
+   
+</div>
+</body>
