@@ -11,7 +11,7 @@ namespace ChatSignalR.Models
 
         public string Nickname { get; set; }
         
-        public int? RoleId { get; set; } = 1;
+        public int? RoleId { get; set; } = 2;
         public Role Role { get; set; }
 
         public virtual ICollection<Message> Messages { get; set; }

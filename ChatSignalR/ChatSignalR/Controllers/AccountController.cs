@@ -32,10 +32,16 @@ namespace ChatSignalR.Controllers
             return View();
         }
 
-        public IActionResult ChatsPage()
+        public async Task<IActionResult> ChatsPage()
         {
-            //_context.Rooms.ToListAsync();
-            return View();
+            var rooms = await _context.Rooms.ToListAsync();
+            return View(rooms);
+        }
+
+        public IActionResult Chat(int id)
+        {
+            var room  = _context.Rooms.First(x=>x.Id==id);
+            return View(room);
         }
 
         [HttpGet]
@@ -57,7 +63,7 @@ namespace ChatSignalR.Controllers
 
         public IActionResult Ban(User user)
         {
-            user.RoleId = 3;
+            user.RoleId = _context.Roles.First(x => x.Name=="banned").Id;;
             _context.Users.Update(user);
             _context.SaveChanges();
             return RedirectToAction("AllUsers", "Account");
@@ -65,7 +71,7 @@ namespace ChatSignalR.Controllers
 
         public IActionResult Unban(User user)
         {
-            user.RoleId = 1;
+            user.RoleId = _context.Roles.First(x => x.Name=="user").Id;;
             _context.Users.Update(user);
             _context.SaveChanges();
             return RedirectToAction("AllUsers", "Account");
@@ -84,7 +90,7 @@ namespace ChatSignalR.Controllers
                 if (user != null)
                 {
                     await Authenticate(user); // аутентификация
-                    return RedirectToAction("Index", "Account"); // переадресация на метод Index
+                    return RedirectToAction("WelcomePage", "Account"); // переадресация на метод Index
                 }
 
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль");
@@ -117,7 +123,26 @@ namespace ChatSignalR.Controllers
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("WelcomePage");
+        }
+
+        public async Task<IActionResult> Createroom(string name)
+        {
+            var ownerId = _context.Users.First(user => user.Nickname == User.Identity.Name).Id;
+            var room = new Room
+            {
+                Name = name,
+                OwnerID = ownerId
+            };
+            _context.Rooms.Add(room);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("ChatsPage");
+        }
+        public async Task<IActionResult> Deleteroom(Room room)
+        {
+            _context.Rooms.Remove(room);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("ChatsPage");
         }
     }
 }

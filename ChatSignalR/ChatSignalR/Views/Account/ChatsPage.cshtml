@@ -1,2 +1,23 @@
-﻿@model ICollection<ChatSignalR.Models.Room>
- @* список чатов *@
+﻿@model IEnumerable<ChatSignalR.Models.Room>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+<form asp-action="Createroom" asp-controller="Account">
+    <div class="form-group">
+        @Html.Label("Name", "Name")
+         @Html.TextBox("Name", "Name")
+    </div>
+    <input type="submit" value="Создать комнату"/>
+</form>
+
+<div class="list-group">
+    @foreach (var room in Model)
+    {
+        <form asp-action="Chat" asp-controller="Account" asp-route-id="@room.Id">
+            Чат @room.Name
+            <button type="submit" class="list-group-item list-group-item-action active">
+                Войти
+            </button>
+        </form>
+    }
+</div>
