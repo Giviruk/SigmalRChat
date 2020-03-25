@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChatSignalR.Data;
+using ChatSignalR.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,15 +28,19 @@ namespace ChatSignalR
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(options =>
-                options.UseNpgsql("Host=localhost;Port=5432;Database=informatika;Username=postgres;Password=1q2w3e"));
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
+            
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.LoginPath = new PathString("/Account/Login");
                     options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
                 });
+            
             services.AddSignalR();
+            
             services.AddControllersWithViews();
         }
 
@@ -46,6 +51,7 @@ namespace ChatSignalR
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCookiePolicy();
 
             app.UseRouting();
 
@@ -56,7 +62,7 @@ namespace ChatSignalR
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Account}/{action=Index}");
+                    pattern: "{controller=Account}/{action=WelcomePage}");//Поменяй на Index если что-то не работает
                 endpoints.MapHub<ChatHub>("/chat");
             });
         }
